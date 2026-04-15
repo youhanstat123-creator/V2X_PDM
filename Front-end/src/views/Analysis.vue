@@ -15,13 +15,13 @@
     </div>
 
     <div class="top-prediction-row">
-      <div class="risk-mini-card" :class="riskData.risk_level">
+      <div class="v2x-card risk-mini-card" :class="riskData.risk_level">
         <span class="label">종합 위험 점수</span>
         <strong class="score">{{ riskData.total_risk_score }}<small>/100</small></strong>
         <div class="badge">{{ riskData.risk_level }}</div>
       </div>
 
-      <div class="rul-card">
+      <div class="v2x-card rul-card">
         <div class="rul-info">
           <h3>⏳ 잔여 수명 예측 (RUL)</h3>
           <p class="rul-desc">
@@ -48,50 +48,42 @@
       </div>
 
       <div class="breakdown-mini-column">
-        <div class="mini-sub-card">
+        <div class="v2x-card mini-sub-card">
           <span>제어기 위험 지수</span>
           <strong>{{ riskData.controller_risk_score }}</strong>
         </div>
-        <div class="mini-sub-card">
+        <div class="v2x-card mini-sub-card">
           <span>V2X 통신 위험 지수</span>
           <strong>{{ riskData.v2x_risk_score }}</strong>
         </div>
       </div>
     </div>
 
-    <div class="history-chart-card">
+    <div class="v2x-card history-chart-card">
       <h3>📈 최근 1시간 위험 점수 추이 (실시간 10분 단위)</h3>
-      <div class="chart-container">
-        <svg viewBox="0 0 700 180" class="history-svg" preserveAspectRatio="none">
-          <line v-for="i in 6" :key="i" x1="0" :y1="i * 30" x2="700" :y2="i * 30" stroke="#eee" stroke-width="1" class="grid-line" />
-          
-          <path :d="chartPath" fill="none" stroke="#4a90e2" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" class="path-anim" />
-
-          <g v-for="(point, idx) in historyData" :key="'pt-' + idx" class="chart-point-group">
-            <circle
-              :cx="point.x" :cy="point.y"
-              :r="point.isEdge ? 5 : 6"
-              :fill="point.val > 60 ? '#e74c3c' : '#4a90e2'"
-              class="point-dot"
-            />
-            <g class="tooltip-box">
-              <rect :x="point.x - 25" :y="point.y - 40" width="50" height="28" rx="5" fill="rgba(0,0,0,0.85)" />
-              <text :x="point.x" :y="point.y - 22" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
-                {{ point.val }}
+      <div class="chart-inner-bg">
+        <div class="chart-container">
+          <svg viewBox="0 0 1000 160" class="history-svg">
+            <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#f0f0f0" stroke-width="1" />
+            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+            <g v-for="(p, i) in historyPoints" :key="i">
+              <circle :cx="p.x" :cy="p.y" r="4" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
+              <text :x="p.x" :y="p.y - 12" text-anchor="middle" font-size="11" font-weight="600" :fill="p.val > 60 ? '#e74c3c' : '#555'">
+                {{ p.val }}
               </text>
             </g>
-          </g>
-        </svg>
-        <div class="chart-labels">
-          <span v-for="label in chartLabels" :key="label" :class="{ today: label === '현재' }">
-            {{ label }}
-          </span>
+          </svg>
+          <div class="chart-labels">
+            <span v-for="label in chartLabels" :key="label" :class="{ today: label === '현재' }">
+              {{ label }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="detail-analysis-grid">
-      <div class="detail-card">
+      <div class="v2x-card detail-card">
         <h3>🚥 제어기 상태 ({{ controllerLog.deviceId }})</h3>
         <div class="metrics-grid">
           <div class="metric-item"><span>CPU 온도</span><strong>{{ controllerLog.cpuTemp }}°C</strong></div>
@@ -100,7 +92,7 @@
           <div class="metric-item"><span>에러 건수</span><strong class="text-warning">{{ controllerLog.errorCount }}</strong></div>
         </div>
       </div>
-      <div class="detail-card">
+      <div class="v2x-card detail-card">
         <h3>📡 V2X 품질 ({{ commLog.deviceId }})</h3>
         <div class="metrics-grid">
           <div class="metric-item"><span>평균 지연</span><strong>{{ commLog.avgLatencyMs }}ms</strong></div>
@@ -111,7 +103,7 @@
       </div>
     </div>
 
-    <div class="analysis-report-box">
+    <div class="v2x-card analysis-report-box">
       <div class="comment-content">
         <div class="icon">💡</div>
         <p><strong>AI 분석 요약:</strong> {{ riskData.analysis_comment }}</p>
@@ -140,11 +132,8 @@ const controllerLog = ref({ deviceId: '-', cpuTemp: 0, responseTimeMs: 0, uptime
 const commLog = ref({ deviceId: '-', spatSendCount: 0, spatFailCount: 0, avgLatencyMs: 0, commFailCount: 0, connectedVehicleCount: 0 })
 const currentHistory = ref([0, 0, 0, 0, 0, 0, 0])
 
-/** 백엔드 DTO는 camelCase; snake_case 응답도 허용 */
 function normalizeControllerStatus(d) {
-  if (!d || typeof d !== 'object') {
-    return { deviceId: '-', cpuTemp: 0, responseTimeMs: 0, uptimeMin: 0, errorCount: 0 }
-  }
+  if (!d || typeof d !== 'object') return { deviceId: '-', cpuTemp: 0, responseTimeMs: 0, uptimeMin: 0, errorCount: 0 }
   return {
     deviceId: d.deviceId ?? d.device_id ?? '-',
     cpuTemp: Number(d.cpuTemp ?? d.cpu_temp ?? 0),
@@ -155,9 +144,7 @@ function normalizeControllerStatus(d) {
 }
 
 function normalizeV2xStatus(d) {
-  if (!d || typeof d !== 'object') {
-    return { deviceId: '-', spatSendCount: 0, spatFailCount: 0, avgLatencyMs: 0, commFailCount: 0, connectedVehicleCount: 0 }
-  }
+  if (!d || typeof d !== 'object') return { deviceId: '-', spatSendCount: 0, spatFailCount: 0, avgLatencyMs: 0, commFailCount: 0, connectedVehicleCount: 0 }
   return {
     deviceId: d.deviceId ?? d.device_id ?? '-',
     spatSendCount: Number(d.spatSendCount ?? d.spat_send_count ?? 0),
@@ -168,46 +155,39 @@ function normalizeV2xStatus(d) {
   }
 }
 
-const controllerUptimeHours = computed(() => {
-  const min = controllerLog.value.uptimeMin
-  if (min == null || Number.isNaN(min)) return 0
-  return Math.floor(min / 60)
-})
-
+const controllerUptimeHours = computed(() => Math.floor((controllerLog.value.uptimeMin || 0) / 60))
 const v2xSpatSuccessPercent = computed(() => {
   const send = commLog.value.spatSendCount
   const fail = commLog.value.spatFailCount
   if (!send || send <= 0) return '—'
-  const pct = ((send - fail) / send) * 100
-  if (Number.isNaN(pct)) return '—'
-  return `${pct.toFixed(1)}%`
+  return `${(((send - fail) / send) * 100).toFixed(1)}%`
 })
 
-const historyData = computed(() => {
-  const totalWidth = 700;
-  const sidePadding = 30; 
-  const usableWidth = totalWidth - (sidePadding * 2);
-  const dataLen = currentHistory.value.length;
-  
+const historyPoints = computed(() => {
+  const width = 1000;
+  const height = 160;
+  const paddingX = 60;
+  const paddingY = 40;
+  const usableWidth = width - (paddingX * 2);
+  const usableHeight = height - (paddingY * 2);
+
   return currentHistory.value.map((val, idx) => ({
-    x: sidePadding + (usableWidth / (dataLen - 1)) * idx, 
-    y: 160 - (val * 1.4), 
-    val: val,
-    isEdge: idx === 0 || idx === dataLen - 1
+    x: paddingX + (usableWidth / (currentHistory.value.length - 1)) * idx,
+    y: (height - paddingY) - (val / 100 * usableHeight),
+    val: val
   }))
 })
 
-const chartPath = computed(() => {
-  if (historyData.value.length === 0) return '';
-  return historyData.value.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
-})
+const chartPath = computed(() => 
+  historyPoints.value.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
+)
 
 const updateChartLabels = () => {
   const labels = [];
   const now = new Date();
   for (let i = 6; i >= 1; i--) {
     const time = new Date(now.getTime() - i * 10 * 60 * 1000);
-    labels.push(`${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}`);
+    labels.push(`${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`);
   }
   labels.push('현재');
   chartLabels.value = labels;
@@ -216,57 +196,41 @@ const updateChartLabels = () => {
 const updateData = async () => {
   updateChartLabels();
   const id = selectedId.value;
-  const results = await Promise.allSettled([
-    api.get(`/api/predictive/${id}`),
-    api.get(`/api/predictive/${id}/history`),
-    api.get(`/api/predictive/${id}/controller`),
-    api.get(`/api/predictive/${id}/v2x`),
-  ]);
+  try {
+    const [paRes, histRes, ctrlRes, vxRes] = await Promise.allSettled([
+      api.get(`/api/predictive/${id}`),
+      api.get(`/api/predictive/${id}/history`),
+      api.get(`/api/predictive/${id}/controller`),
+      api.get(`/api/predictive/${id}/v2x`),
+    ]);
 
-  const [paRes, histRes, ctrlRes, vxRes] = results;
+    if (paRes.status === 'fulfilled') {
+      const pa = paRes.value.data;
+      riskData.value = {
+        total_risk_score: Math.round(pa.total_risk_score || pa.totalRiskScore || 0),
+        controller_risk_score: Math.round(pa.controller_risk_score || pa.controllerRiskScore || 0),
+        v2x_risk_score: Math.round(pa.v2x_risk_score || pa.v2xRiskScore || 0),
+        risk_level: pa.risk_level || pa.riskLevel || '정상',
+        remain_days: pa.remain_days ?? pa.remainDays ?? 15,
+        fail_prob: pa.fail_prob ?? pa.failProb ?? 5,
+        analysis_comment: pa.analysis_comment || pa.analysisComment || '',
+      };
+    }
 
-  if (paRes.status === 'fulfilled') {
-    const pa = paRes.value.data;
-    riskData.value = {
-      total_risk_score: Math.round(pa.total_risk_score || pa.totalRiskScore || 0),
-      controller_risk_score: Math.round(pa.controller_risk_score || pa.controllerRiskScore || 0),
-      v2x_risk_score: Math.round(pa.v2x_risk_score || pa.v2xRiskScore || 0),
-      risk_level: pa.risk_level || pa.riskLevel || '정상',
-      remain_days: pa.remain_days ?? pa.remainDays ?? 15,
-      fail_prob: pa.fail_prob ?? pa.failProb ?? 5,
-      analysis_comment: pa.analysis_comment || pa.analysisComment || '',
-    };
-  } else {
-    console.warn('예지보전 분석 API 실패:', paRes.reason);
-  }
-
-  if (histRes.status === 'fulfilled' && histRes.value.data?.length > 0) {
-    const scores = histRes.value.data.map((h) => h.total_risk_score ?? h.score ?? 0);
-    currentHistory.value =
-      scores.length >= 7 ? [...scores.slice(-7)] : [...Array(7 - scores.length).fill(0), ...scores];
-  } else if (histRes.status === 'rejected') {
-    console.warn('위험 히스토리 API 실패:', histRes.reason);
-  }
-
-  if (ctrlRes.status === 'fulfilled') {
-    controllerLog.value = normalizeControllerStatus(ctrlRes.value.data);
-  } else {
-    console.warn('제어기 상태 API 실패:', ctrlRes.reason);
-    controllerLog.value = normalizeControllerStatus(null);
-  }
-
-  if (vxRes.status === 'fulfilled') {
-    commLog.value = normalizeV2xStatus(vxRes.value.data);
-  } else {
-    console.warn('V2X 상태 API 실패:', vxRes.reason);
-    commLog.value = normalizeV2xStatus(null);
+    if (histRes.status === 'fulfilled' && histRes.value.data?.length > 0) {
+      const scores = histRes.value.data.map((h) => h.total_risk_score ?? h.score ?? 0);
+      currentHistory.value = scores.length >= 7 ? [...scores.slice(-7)] : [...Array(7 - scores.length).fill(0), ...scores];
+    }
+    if (ctrlRes.status === 'fulfilled') controllerLog.value = normalizeControllerStatus(ctrlRes.value.data);
+    if (vxRes.status === 'fulfilled') commLog.value = normalizeV2xStatus(vxRes.value.data);
+  } catch (e) {
+    console.error('Data update failed', e);
   }
 }
 
 onMounted(() => {
   updateData();
-  // 실시간성을 위해 3초마다 갱신 (서버 부하가 걱정되면 5000으로 원복)
-  dataTimer = setInterval(updateData, 3000); 
+  dataTimer = setInterval(updateData, 5000);
 })
 
 onUnmounted(() => {
@@ -275,46 +239,113 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 기존 스타일 그대로 유지 */
-.analysis-view { display: flex; flex-direction: column; gap: 13px; padding: 8px 8px 24px; background: #f8f9fb; max-width: 100%; box-sizing: border-box; }
-.header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 15px; border-bottom: 2px solid #eee; }
-.title-wrap { display: flex; flex-direction: column; gap: 5px; }
-.intersection-select { padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer; }
-.top-prediction-row { display: grid; grid-template-columns: 2fr 5.15fr 2fr; gap: 10px; }
-.risk-mini-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); text-align: center; border-top: 5px solid #2ecc71; }
+.analysis-view {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f4f7f9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #edf2f7;
+}
+
+/* ⭐ 공통 카드 스타일 */
+.v2x-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+}
+
+.intersection-select {
+  padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer;
+}
+
+/* 상단 레이아웃 */
+.top-prediction-row {
+  display: grid;
+  grid-template-columns: 2fr 5.15fr 2fr;
+  gap: 15px;
+  align-items: stretch;
+}
+
+.risk-mini-card { text-align: center; border-top: 4px solid #2ecc71; }
 .risk-mini-card.위험 { border-top-color: #e74c3c; }
-.risk-mini-card.주의 { border-top-color: #f1c40f; }
-.risk-mini-card.경고 { border-top-color: #e67e22; }
-.risk-mini-card .score { font-size: 32px; font-weight: 800; display: block; }
-.risk-mini-card .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; background: #e74c3c; color: white; font-size: 12px; margin-top: 5px; }
-.risk-mini-card.정상 .badge { background: #2ecc71; }
-.risk-mini-card.주의 .badge { background: #f1c40f; }
-.rul-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
-.rul-desc { font-size: 14px; margin-bottom: 15px; color: #444; }
-.rul-bar { height: 12px; background: #eee; border-radius: 6px; overflow: hidden; margin-bottom: 5px; }
+.risk-mini-card .score { font-size: 30px; font-weight: 800; display: block; }
+.risk-mini-card .badge {
+  display: inline-block; padding: 2px 12px; border-radius: 20px;
+  background: #2ecc71; color: white; font-size: 12px; margin-top: 5px;
+}
+.risk-mini-card.위험 .badge { background: #e74c3c; }
+
+.rul-progress-container { margin-top: 15px; }
+.rul-bar { height: 12px; background: #eee; border-radius: 6px; overflow: hidden; }
 .rul-fill { height: 100%; transition: width 0.8s ease; }
-.rul-labels { display: flex; justify-content: space-between; font-size: 11px; color: #999; }
-.mini-sub-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
-.mini-sub-card:last-child { margin-bottom: 0; }
-.mini-sub-card span { font-size: 11px; color: #888; display: block; }
-.mini-sub-card strong { font-size: 18px; }
-.history-chart-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: relative; }
-.history-chart-card h3 { font-size: 15px; margin-bottom: 10px; color: #444; }
-.history-svg { width: 100%; height: 180px; overflow: visible; box-sizing: border-box; }
-.tooltip-box { visibility: hidden; opacity: 0; transition: 0.2s; pointer-events: none; z-index: 10; }
-.chart-point-group:hover .tooltip-box { visibility: visible; opacity: 1; }
-.chart-labels { display: flex; justify-content: space-between; padding: 0 30px; margin-top: 10px; font-size: 11px; color: #bbb; }
-.chart-labels .today { color: #4a90e2; font-weight: bold; }
-.detail-analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.detail-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
-.detail-card h3 { font-size: 15px; margin-bottom: 10px; border-left: 4px solid #4a90e2; padding-left: 8px; color: #444; }
+.rul-labels { display: flex; justify-content: space-between; font-size: 11px; color: #999; margin-top: 5px; }
+
+/* ⭐ 카드 분리 설정: 각 카드가 독립적으로 존재하도록 간격 부여 */
+.breakdown-mini-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mini-sub-card {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: none; /* 포인트 테두리 제거 */
+}
+.mini-sub-card span { font-size: 12px; color: #888; display: block; }
+.mini-sub-card strong { font-size: 20px; color: #333; }
+
+/* 그래프 */
+.chart-inner-bg {
+  background: #ffffff; border: 1px solid #eef1f5; border-radius: 10px;
+  padding: 30px 10px 15px; margin-top: 15px;
+}
+.history-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart-labels {
+  display: flex; justify-content: space-between; padding: 0 60px;
+  font-size: 12px; color: #a0a0a0; margin-top: 15px;
+}
+.chart-labels .today { color: #3498db; font-weight: bold; }
+
+/* 하단 상세 정보 */
+.detail-analysis-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+}
+.detail-card { border-top: none; } /* 포인트 테두리 제거 */
+.detail-card h3 {
+  font-size: 16px; margin-bottom: 15px; color: #334155;
+  border-left: 4px solid #3498db; padding-left: 10px;
+}
 .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.metric-item { background: #f9fbff; padding: 12px; border-radius: 10px; text-align: center; }
-.metric-item strong { font-size: 18px; color: #333; }
-.analysis-report-box { background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #eee; }
-.comment-content { display: flex; gap: 15px; align-items: center; background: #f8fbff; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; }
-.dark-theme .analysis-view { background: #535151; }
-.dark-theme .risk-mini-card, .dark-theme .rul-card, .dark-theme .mini-sub-card, .dark-theme .history-chart-card, .dark-theme .detail-card, .dark-theme .analysis-report-box { background: #1e1e1e !important; color: #eee !important; border: 1px solid #333 !important; box-shadow: 0 10px 12px rgba(0, 0, 0, 0.4); }
-.dark-theme .header { border-bottom: 2px solid #7e7e7e; }
-.dark-theme h2, .dark-theme h3, .dark-theme strong, .dark-theme span { color: #ffffff !important; }
+.metric-item {
+  background: #f8fafc; padding: 15px; border-radius: 10px; text-align: center;
+}
+.metric-item span { font-size: 12px; color: #64748b; display: block; }
+.metric-item strong { font-size: 18px; color: #1e293b; margin-top: 5px; display: block; }
+
+.analysis-report-box { border-top: none; } /* 포인트 테두리 제거 */
+.comment-content {
+  display: flex; gap: 15px; align-items: center; background: #f0f7ff;
+  padding: 15px; border-radius: 8px; font-size: 14px;
+}
+
+/* 다크모드 */
+.dark-theme .analysis-view { background: #0f172a; }
+.dark-theme .v2x-card { background: #1e293b; color: #f1f5f9; border: 1px solid #334155; }
+.dark-theme .chart-inner-bg { background: #0f172a; border-color: #334155; }
+.dark-theme .metric-item { background: #0f172a; }
+.dark-theme strong, .dark-theme h2, .dark-theme h3 { color: #fff !important; }
 </style>

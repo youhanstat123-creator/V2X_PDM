@@ -42,20 +42,16 @@
       <h3>📈 최근 1시간 통신 지연(Latency) 변동 추이 (10분 단위)</h3>
       <div class="chart-inner-bg">
         <div class="chart-container">
-          <svg viewBox="0 0 700 120" class="v2x-svg" preserveAspectRatio="none">
-            <line
-              v-for="i in 4"
-              :key="'grid-' + i"
-              x1="0"
-              :y1="i * 30"
-              x2="700"
-              :y2="i * 30"
-              stroke="rgba(200, 200, 200, 0.1)"
-              stroke-width="1"
-            />
-            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" class="path-anim" />
+          <svg viewBox="0 0 1000 160" class="v2x-svg">
+            <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#f0f0f0" stroke-width="1" />
+            
+            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+            
             <g v-for="(p, i) in historyPoints" :key="i">
-              <circle :cx="p.x" :cy="p.y" r="5" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
+              <circle :cx="p.x" :cy="p.y" r="4" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
+              <text :x="p.x" :y="p.y - 12" text-anchor="middle" font-size="11" font-weight="600" :fill="p.val > 60 ? '#e74c3c' : '#555'">
+                {{ p.val }}
+              </text>
             </g>
           </svg>
           <div class="chart-labels">
@@ -117,7 +113,7 @@ import api from '@/api'
 const isDarkMode = inject('isDarkMode', ref(false))
 const currentTime = ref(new Date().toLocaleString())
 let timer = null
-let dataTimer = null // 실시간 데이터 갱신용 타이머
+let dataTimer = null
 
 const intersectionList = [
   { id: 'ICN-01', name: '인천시청입구 삼거리' },
@@ -140,7 +136,7 @@ const commLog = ref({
 
 const historyData = ref([0, 0, 0, 0, 0, 0, 0])
 const logHistory = ref([])
-const chartLabels = ref([]) // 1시간 단위 동적 라벨
+const chartLabels = ref([])
 
 const totalPages = computed(() => Math.ceil(logHistory.value.length / itemsPerPage) || 1)
 const paginatedLogs = computed(() => {
@@ -149,25 +145,30 @@ const paginatedLogs = computed(() => {
   return logHistory.value.slice(start, end)
 })
 
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--
-}
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++
-}
+const prevPage = () => { if (currentPage.value > 1) currentPage.value-- }
+const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++ }
 
-// 수정: 최근 1시간(7개 포인트)에 맞춰 X 좌표 분배
+// --- 🛠 좌표 계산 로직 개선 (1000x160 기준) ---
 const historyPoints = computed(() => {
-  const totalWidth = 700;
-  const sidePadding = 30; // 양옆 여백
-  const usableWidth = totalWidth - (sidePadding * 2);
+  const width = 1000;
+  const height = 160;
+  const paddingX = 60;
+  const paddingY = 40; 
+  const usableWidth = width - (paddingX * 2);
   const dataLen = historyData.value.length || 7;
 
-  return historyData.value.map((val, idx) => ({
-    x: sidePadding + (usableWidth / (dataLen - 1)) * idx,
-    y: 100 - (val * 0.8), // Latency 값에 따른 Y 좌표
-    val: val,
-  }))
+  return historyData.value.map((val, idx) => {
+    // 0~100ms를 기준으로 Y축 높이 비례 계산 (최대 120ms까지 표현)
+    const normalizedVal = Math.min(val, 120);
+    const yRatio = normalizedVal / 120;
+    
+    return {
+      x: paddingX + (usableWidth / (dataLen - 1)) * idx,
+      // 아래에서 위로 그려지므로 전체높이에서 빼줌
+      y: (height - paddingY) - (yRatio * (height - paddingY * 2)),
+      val: val
+    }
+  })
 })
 
 const chartPath = computed(() =>
@@ -175,20 +176,17 @@ const chartPath = computed(() =>
 )
 
 const calculateSuccessRate = computed(() => {
-  const total = commLog.value.spat_send_count
-  const fail = commLog.value.spat_fail_count
+  const total = commLog.value.spat_send_count || 1
+  const fail = commLog.value.spat_fail_count || 0
   return (((total - fail) / total) * 100).toFixed(2)
 })
 
-// 추가: 1시간 전까지의 10분 단위 라벨 생성
 const updateChartLabels = () => {
   const labels = [];
   const now = new Date();
   for (let i = 6; i >= 1; i--) {
     const time = new Date(now.getTime() - i * 10 * 60 * 1000);
-    const hh = time.getHours().toString().padStart(2, '0');
-    const mm = time.getMinutes().toString().padStart(2, '0');
-    labels.push(`${hh}:${mm}`);
+    labels.push(`${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`);
   }
   labels.push('현재');
   chartLabels.value = labels;
@@ -217,7 +215,6 @@ const updateData = async () => {
       commLog.value.comm_fail_count = rows[0].commFailCount ?? rows[0].comm_fail_count ?? 0
     }
 
-    // 최근 1시간 이력 (최대 7개)
     if (histRes.data) {
       const latencies = histRes.data.map((h) => h.latency ?? h.avg_latency_ms ?? 0);
       historyData.value = latencies.length >= 7 ? latencies.slice(-7) : [...Array(7 - latencies.length).fill(0), ...latencies];
@@ -238,12 +235,7 @@ const updateData = async () => {
 
 onMounted(() => {
   updateData()
-
-  timer = setInterval(() => {
-    currentTime.value = new Date().toLocaleString()
-  }, 1000)
-
-  // 5초마다 실시간 데이터 갱신
+  timer = setInterval(() => { currentTime.value = new Date().toLocaleString() }, 1000)
   dataTimer = setInterval(updateData, 5000);
 })
 
@@ -258,132 +250,73 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  padding: 10px 10px 24px;
+  padding: 15px;
   width: 100%;
-  max-width: 100%;
   box-sizing: border-box;
-  background: #f8f9fb;
-}
-.title-wrap h2 {
-  font-size: 24px;
-}
-
-.header {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 15px;
-}
-
-.v2x-stats-row {
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  background: #f4f7f9;
 }
 
 .v2x-card {
   background: white;
-  padding: 18px;
+  padding: 24px;
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
-.val {
-  font-size: 30px;
-  font-weight: 800;
-  display: block;
-  margin: 4px 0;
+/* 📈 그래프 영역 최적화 */
+.chart-inner-bg {
+  background: #ffffff;
+  border: 1px solid #eef1f5;
+  border-radius: 10px;
+  padding: 30px 10px 15px;
+  margin-top: 15px;
 }
-.val.blue { color: #3498db; }
-.val.green { color: #2ecc71; }
-.val.orange { color: #e67e22; }
-.val small { font-size: 14px; margin-left: 4px; color: #888; }
-
-.chart-section {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
+.chart-container {
+  width: 100%;
+  overflow: hidden;
 }
 .v2x-svg {
   width: 100%;
-  height: 110px;
-  overflow: visible;
+  height: auto;
+  display: block;
+  overflow: visible; /* 수치 텍스트가 잘리지 않게 함 */
+}
+.intersection-select{
+  padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer;
 }
 .chart-labels {
   display: flex;
   justify-content: space-between;
-  padding: 0 30px; /* 수정: sidePadding(30)과 일치 */
-  font-size: 11px;
-  color: #bbb;
-  margin-top: 10px;
+  padding: 0 60px; /* paddingX와 동일하게 설정 */
+  font-size: 12px;
+  color: #a0a0a0;
+  margin-top: 15px;
 }
 .chart-labels .today { color: #3498db; font-weight: bold; }
 
-.table-card {
-  flex: 0 1 auto;
-  min-height: 260px;
-  max-height: min(420px, 50vh);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* 레이아웃 & 테이블 */
+.v2x-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
 }
-.table-header-group {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.table-wrapper {
-  overflow-x: auto;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-.log-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-.log-table th {
-  background: #fbfbfc;
-  padding: 12px;
-  text-align: left;
-  border-bottom: 2px solid #eee;
-  color: #555;
-}
-.log-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #eee;
-}
+.val { font-size: 30px; font-weight: 800; }
+.val.blue { color: #3498db; }
+.val.green { color: #2ecc71; }
+.val.orange { color: #e67e22; }
+.val small { font-size: 14px; color: #999; margin-left: 3px; }
 
-.intersection-select,
-.page-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-}
+.table-wrapper { overflow-x: auto; margin-top: 12px; }
+.log-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.log-table th { background: #f8fafc; padding: 14px; text-align: left; color: #64748b; border-bottom: 2px solid #edf2f7; }
+.log-table td { padding: 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
 
-/* 🌑 다크모드 대응 */
-.dark-theme .v2x-view { background: #535151 !important; }
-.dark-theme .v2x-card {
-  background: #1e1e1e !important;
-  color: #eee;
-  border: 1px solid #2c2c2c;
-  box-shadow: 0 10px 12px rgba(0, 0, 0, 0.4);
-}
-.dark-theme .header { border-bottom: 2px solid #7e7e7e !important; }
-.dark-theme .header h2,
-.dark-theme .header p,
-.dark-theme .header strong,
-.dark-theme .selector-group label,
-.dark-theme h3 { color: #ffffff !important; }
-.dark-theme .log-table th { background: #252525; color: #bbb; border-bottom: 1px solid #333; }
-.dark-theme .log-table td { border-bottom: 1px solid #2a2a2a; color: #ddd; }
-.dark-theme .intersection-select,
-.dark-theme .page-btn { background: #252525; border: 1px solid #444; color: #eee; }
+.text-danger { color: #ef4444 !important; font-weight: bold; }
+
+/* 🌑 다크모드 */
+.dark-theme .v2x-view { background: #0f172a; }
+.dark-theme .v2x-card { background: #1e293b; color: #f1f5f9; border: 1px solid #334155; }
+.dark-theme .chart-inner-bg { background: #0f172a; border-color: #334155; }
+.dark-theme .log-table th { background: #1e293b; color: #94a3b8; }
+.dark-theme .log-table td { border-bottom-color: #334155; color: #cbd5e1; }
 </style>

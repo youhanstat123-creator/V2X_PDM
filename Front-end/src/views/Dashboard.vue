@@ -294,14 +294,25 @@ const chartPoints = computed(() => latencyChart.value.points)
 const latencyPathSegments = computed(() => {
   const pts = chartPoints.value
   if (pts.length < 2) return []
-  const out = []
+
+  const path = []
+  let d = `M${pts[0].x},${pts[0].y}`
+
   for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i]
-    const b = pts[i + 1]
-    const high = Math.max(a.val, b.val) >= 80
-    out.push({ d: `M${a.x},${a.y} L${b.x},${b.y}`, high })
+    const p0 = pts[i]
+    const p1 = pts[i + 1]
+
+    const dx = (p1.x - p0.x) * 0.5
+
+    d += ` C ${p0.x + dx},${p0.y} ${p1.x - dx},${p1.y} ${p1.x},${p1.y}`
   }
-  return out
+
+  path.push({
+    d,
+    high: pts.some(p => p.val >= 80)
+  })
+
+  return path
 })
 
 function fmtNum(v) {
