@@ -66,12 +66,21 @@
           <svg viewBox="0 0 1000 160" class="history-svg">
             <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#bfbdbd" stroke-width="1" />
             <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-            <g v-for="(p, i) in historyPoints" :key="i">
-              <circle :cx="p.x" :cy="p.y" r="4" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
-              <text :x="p.x" :y="p.y - 12" text-anchor="middle" font-size="11" font-weight="600" :fill="p.val > 60 ? '#e74c3c' : '#555'">
-                {{ p.val }}
-              </text>
-            </g>
+             <g v-for="(p, i) in historyPoints" :key="i">
+            <circle :cx="p.x" :cy="p.y" r="4" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
+            
+            <text 
+              :x="p.x" 
+              :y="p.y - 12" 
+              text-anchor="middle" 
+              font-size="11" 
+              font-weight="600"
+              class="chart-text"
+              :class="{ 'high-risk': p.val > 60 }"
+            >
+              {{ p.val }}
+            </text>
+          </g>
           </svg>
           <div class="chart-labels">
             <span v-for="label in chartLabels" :key="label" :class="{ today: label === '현재' }">
@@ -84,7 +93,7 @@
 
     <div class="detail-analysis-grid">
       <div class="v2x-card detail-card">
-        <h3>🚥 제어기 상태 ({{ controllerLog.deviceId }})</h3>
+        <h3>🚥 제어기 상태 </h3>
         <div class="metrics-grid">
           <div class="metric-item"><span>CPU 온도</span><strong>{{ controllerLog.cpuTemp }}°C</strong></div>
           <div class="metric-item"><span>응답 속도</span><strong>{{ controllerLog.responseTimeMs }}ms</strong></div>
@@ -93,7 +102,7 @@
         </div>
       </div>
       <div class="v2x-card detail-card">
-        <h3>📡 V2X 품질 ({{ commLog.deviceId }})</h3>
+        <h3>📡 V2X 품질 </h3>
         <div class="metrics-grid">
           <div class="metric-item"><span>평균 지연</span><strong>{{ commLog.avgLatencyMs }}ms</strong></div>
           <div class="metric-item"><span>차량 접속</span><strong>{{ commLog.connectedVehicleCount }}</strong></div>
@@ -370,15 +379,31 @@ onUnmounted(() => {
   background: #2a2a2a;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+/* 차트 데이터 라벨(숫자 0 부분) 및 축 텍스트 수정 */
+.dark-theme .chart-inner-bg text, 
+.dark-theme .chart-inner-bg .label,
+.dark-theme .v2x-card text {
+  fill: #ffffff !important;  /* SVG 차트인 경우 */
+  color: #ffffff !important; /* 일반 텍스트인 경우 */
+  font-weight: 500;
+}
 
+/* 하단 시간축(11:12, 11:22 등) 색상 강조 */
+.dark-theme .chart-text,
+.dark-theme .chart-labels span {
+  fill: #ffffff !important;  /* SVG 텍스트용 */
+  color: #ffffff !important; /* 일반 텍스트용 */
+}
 .dark-theme strong, 
 .dark-theme h2, 
 .dark-theme h3 { 
   color: #fff !important; 
 }
-
+.dark-theme .history-svg text {
+  fill: #ffffff !important; /* 인라인으로 박힌 :fill을 무시함 */
+}
 .dark-theme .metric-item span { 
-  color: #bbb; /* 다크모드 폰트 컬러 조정 */
+  color: #ffffff; /* 다크모드 폰트 컬러 조정 */
 }
 
 .dark-theme .metric-item strong { 
