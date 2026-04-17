@@ -29,7 +29,7 @@ public class AdminSignupDTO {
     @NotBlank(message = "사원번호는 필수입니다.")
     @Pattern(
             regexp = "^VTX\\d{3}$",
-            message = "사원번호는 3자리 숫자로 입력해주세요."
+            message = "사원번호는 VTX001 형식으로 입력해주세요."
     )
     private String employeeNo; // 사원번호
 
