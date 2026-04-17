@@ -27,6 +27,10 @@ public class AdminSignupDTO {
     private String adminName; // 이름
 
     @NotBlank(message = "사원번호는 필수입니다.")
+    @Pattern(
+            regexp = "^VTX\\d{3}$",
+            message = "사원번호는 3자리 숫자로 입력해주세요."
+    )
     private String employeeNo; // 사원번호
 
     @NotBlank(message = "전화번호는 필수입니다.")
