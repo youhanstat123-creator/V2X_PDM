@@ -16,7 +16,7 @@
 
     <div class="v2x-stats-row">
       <div class="v2x-card stat-box">
-        <span class="label">  평균 통신 지연 (avg_latency_ms)   </span>
+        <span class="label">  평균 통신 지연 </span>
         <strong class="val blue">{{ commLog.avg_latency_ms }}<small>ms</small></strong>
         <p class="sub-desc" :class="commLog.avg_latency_ms > 50 ? 'text-danger' : ''">
           {{ commLog.avg_latency_ms > 50 ? '⚠️ 지연 시간 증가' : '✅ 통신 상태 양호' }}
@@ -32,7 +32,7 @@
       </div>
 
       <div class="v2x-card stat-box">
-        <span class="label">접속 차량 (connected_vehicle_count)      </span>
+        <span class="label">접속 차량 </span>
         <strong class="val orange">{{ commLog.connected_vehicle_count }}<small>대</small></strong>
         <p class="sub-desc">장비명: {{ commLog.v2x_device_id }}</p>
       </div>

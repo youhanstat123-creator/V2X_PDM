@@ -113,15 +113,17 @@
                     :key="idx"
                     :d="seg.d"
                     fill="none"
-                    :stroke="seg.high ? '#e74c3c' : '#4a90e2'"
+                    stroke="#4a90e2" 
                     stroke-width="2.75"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     vector-effect="non-scaling-stroke"
                     class="path-animation latency-stroke"
                   />
+
                   <g class="chart-point" v-for="(p, i) in chartPoints" :key="i">
                     <circle :cx="p.x" :cy="p.y" r="14" fill="transparent" class="hover-trigger" />
+                    
                     <circle
                       :cx="p.x"
                       :cy="p.y"
@@ -129,20 +131,15 @@
                       :fill="p.val >= 80 ? '#e74c3c' : '#4a90e2'"
                       class="dot-fill"
                     />
+
                     <g class="tooltip">
-                      <rect
-                        :x="p.x - 20"
-                        :y="p.y - 35"
-                        width="40"
-                        height="22"
-                        rx="4"
-                        fill="rgba(0,0,0,0.8)"
-                      />
+                      <rect :x="p.x - 20" :y="p.y - 35" width="40" height="22" rx="4" fill="rgba(0,0,0,0.8)" />
                       <text :x="p.x" :y="p.y - 20" text-anchor="middle" fill="white" font-size="10">
                         {{ p.val }}ms
                       </text>
                     </g>
                   </g>
+                 
                 </svg>
               </div>
               <div class="latency-label">
@@ -309,7 +306,7 @@ const latencyPathSegments = computed(() => {
 
   path.push({
     d,
-    high: pts.some(p => p.val >= 80)
+   
   })
 
   return path
