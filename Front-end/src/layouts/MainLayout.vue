@@ -13,7 +13,7 @@
           >장비 정밀진단</router-link
         >
         <router-link to="/v2x" class="menu-item" active-class="active">V2X 통신관리</router-link>
-        <router-link to="/recommend" class="menu-item" active-class="active">AI분석</router-link>
+        <router-link to="/recommend" class="menu-item" active-class="active">AI분석 및 리포트</router-link>
       </nav>
 
       <div class="logout-wrapper" style="margin-top: auto; padding: 20px">
