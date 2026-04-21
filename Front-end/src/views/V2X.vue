@@ -29,7 +29,7 @@
         <p class="sub-desc">
           실패 건수: {{ commLog.spat_fail_count }} / {{ commLog.spat_send_count }}
         </p>
-      </div>
+      </div> 
 
       <div class="v2x-card stat-box">
         <span class="label">접속 차량 </span>
