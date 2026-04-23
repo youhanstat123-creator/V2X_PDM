@@ -64,21 +64,21 @@
       <div class="chart-inner-bg">
         <div class="chart-container">
           <svg viewBox="0 0 1000 160" class="history-svg">
-            <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#bfbdbd" stroke-width="1" stroke-dasharray="4" opacity="0.3" />
-            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+            <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#bfbdbd" stroke-width="1" />
+            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
             
             <g v-for="(p, i) in historyPoints" :key="i">
-              <circle :cx="p.x" :cy="p.y" r="5" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" stroke="white" stroke-width="2" />
+              <circle :cx="p.x" :cy="p.y" r="4" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
               
               <text 
                 :x="p.x" 
-                :y="p.y - 15" 
+                :y="p.y - 12" 
                 text-anchor="middle" 
-                font-size="13" 
-                font-weight="bold"
+                font-size="11" 
+                font-weight="600"
                 class="chart-text"
-                :class="{ 'high-risk': p.val > 60 }"
-                :fill="p.val > 60 ? '#e74c3c' : '#555'"
+                :class="{ 'text-error': p.val > 60 }"
+                :fill="p.val > 60 ? '#e74c3c' : (isDarkMode ? '#ffffff' : '#333333')"
               >
                 {{ p.val }}
               </text>
@@ -223,8 +223,7 @@ const updateData = async () => {
         v2x_risk_score: Math.round(pa.v2x_risk_score || pa.v2xRiskScore || 0),
         remain_days: Number(pa.remain_days ?? 15).toFixed(1), 
         fail_prob: Math.round(pa.fail_prob ?? 5),
-        analysis_comment: pa.analysis_comment || "",
-        risk_level: pa.risk_level || (pa.total_risk_score > 60 ? '위험' : '정상')
+        analysis_comment: pa.analysis_comment || ""
       };
     }
 
@@ -311,13 +310,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  border-top: none;
 }
 .mini-sub-card span { font-size: 12px; color: #888; display: block; }
 .mini-sub-card strong { font-size: 20px; color: #333; }
 
 .chart-inner-bg {
   background: #ffffff; border: 1px solid #eef1f5; border-radius: 10px;
-  padding: 35px 10px 15px; margin-top: 15px;
+  padding: 30px 10px 15px; margin-top: 15px;
 }
 .history-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .chart-labels {
@@ -326,15 +326,10 @@ onUnmounted(() => {
 }
 .chart-labels .today { color: #3498db; font-weight: bold; }
 
-/* 강조 스타일 */
-.chart-text.high-risk {
-  fill: #e74c3c !important;
-  font-weight: 800;
-}
-
 .detail-analysis-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
 }
+.detail-card { border-top: none; }
 .detail-card h3 {
   font-size: 16px; margin-bottom: 15px; color: #334155;
   border-left: 4px solid #3498db; padding-left: 10px;
@@ -346,31 +341,29 @@ onUnmounted(() => {
 .metric-item span { font-size: 12px; color: #64748b; display: block; }
 .metric-item strong { font-size: 18px; color: #1e293b; margin-top: 5px; display: block; }
 
+.analysis-report-box { border-top: none; }
 .comment-content {
   display: flex; gap: 15px; align-items: center; background: #f0f7ff;
   padding: 15px; border-radius: 8px; font-size: 14px;
 }
 
-/* 다크모드 대응 */
+/* 다크모드 설정 */
 .dark-theme .analysis-view { background: #4f5052; }
 .dark-theme .v2x-card { 
   background: #1e1e1e; color: #f1f5f9; border: 1px solid #2a2a2a;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); 
 }
 .dark-theme .chart-inner-bg { background: #1e1e1e; border-color: #2a2a2a; }
-.dark-theme .metric-item { background: #333232; }
-.dark-theme .comment-content { background: #2a2a2a; color: #fff; }
+.dark-theme .metric-item, .dark-theme .icon { background: #333232; }
+.dark-theme .comment-content { background: #2a2a2a; }
 
-.dark-theme .chart-text:not(.high-risk) {
+/* 다크모드 차트 텍스트 예외 처리: 위험수치(#e74c3c)는 유지, 나머지는 흰색 */
+.dark-theme .history-svg text:not([fill="#e74c3c"]) {
   fill: #ffffff !important;
 }
-.dark-theme .chart-labels span {
-  color: #ffffff;
-}
-.dark-theme strong, .dark-theme h2, .dark-theme h3, .dark-theme label { 
-  color: #fff !important; 
-}
-.dark-theme .intersection-select {
-  background: #2a2a2a; color: white; border-color: #444;
-}
+.dark-theme .chart-labels span { color: #ffffff !important; }
+.dark-theme strong, .dark-theme h2, .dark-theme h3, .dark-theme .selector-group label { color: #fff !important; }
+
+.dark-theme .metric-item span { color: #ffffff; }
+.dark-theme .intersection-select { background: #2a2a2a; color: white; border-color: #444; }
 </style>
