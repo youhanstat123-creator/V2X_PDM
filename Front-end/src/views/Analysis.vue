@@ -64,23 +64,25 @@
       <div class="chart-inner-bg">
         <div class="chart-container">
           <svg viewBox="0 0 1000 160" class="history-svg">
-            <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#bfbdbd" stroke-width="1" />
-            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-             <g v-for="(p, i) in historyPoints" :key="i">
-            <circle :cx="p.x" :cy="p.y" r="4" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" />
+            <line v-for="i in 3" :key="i" x1="0" :y1="i * 40 + 20" x2="1000" :y2="i * 40 + 20" stroke="#bfbdbd" stroke-width="1" stroke-dasharray="4" opacity="0.3" />
+            <path :d="chartPath" fill="none" stroke="#3498db" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
             
-            <text 
-              :x="p.x" 
-              :y="p.y - 12" 
-              text-anchor="middle" 
-              font-size="11" 
-              font-weight="600"
-              class="chart-text"
-              :class="{ 'high-risk': p.val > 60 }"
-            >
-              {{ p.val }}
-            </text>
-          </g>
+            <g v-for="(p, i) in historyPoints" :key="i">
+              <circle :cx="p.x" :cy="p.y" r="5" :fill="p.val > 60 ? '#e74c3c' : '#3498db'" stroke="white" stroke-width="2" />
+              
+              <text 
+                :x="p.x" 
+                :y="p.y - 15" 
+                text-anchor="middle" 
+                font-size="13" 
+                font-weight="bold"
+                class="chart-text"
+                :class="{ 'high-risk': p.val > 60 }"
+                :fill="p.val > 60 ? '#e74c3c' : '#555'"
+              >
+                {{ p.val }}
+              </text>
+            </g>
           </svg>
           <div class="chart-labels">
             <span v-for="label in chartLabels" :key="label" :class="{ today: label === '현재' }">
@@ -213,19 +215,16 @@ const updateData = async () => {
       api.get(`/api/predictive/${id}/v2x`),
     ]);
 
-    // updateData 함수 내부 수정 예시
     if (paRes.status === 'fulfilled') {
       const pa = paRes.value.data;
       riskData.value = {
-        // Math.round를 사용하여 정수로 깔끔하게 처리
         total_risk_score: Math.round(pa.total_risk_score || pa.totalRiskScore || 0),
         controller_risk_score: Math.round(pa.controller_risk_score || pa.controllerRiskScore || 0),
         v2x_risk_score: Math.round(pa.v2x_risk_score || pa.v2xRiskScore || 0),
-        
-        // 소수점이 필요한 경우 Number.parseFloat()와 toFixed() 조합
         remain_days: Number(pa.remain_days ?? 15).toFixed(1), 
         fail_prob: Math.round(pa.fail_prob ?? 5),
-        analysis_comment: pa.analysis_comment || ""
+        analysis_comment: pa.analysis_comment || "",
+        risk_level: pa.risk_level || (pa.total_risk_score > 60 ? '위험' : '정상')
       };
     }
 
@@ -268,7 +267,6 @@ onUnmounted(() => {
   border-bottom: 2px solid #edf2f7;
 }
 
-/* ⭐ 공통 카드 스타일 */
 .v2x-card {
   background: white;
   padding: 24px;
@@ -281,7 +279,6 @@ onUnmounted(() => {
   padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer;
 }
 
-/* 상단 레이아웃 */
 .top-prediction-row {
   display: grid;
   grid-template-columns: 2fr 5.15fr 2fr;
@@ -303,7 +300,6 @@ onUnmounted(() => {
 .rul-fill { height: 100%; transition: width 0.8s ease; }
 .rul-labels { display: flex; justify-content: space-between; font-size: 11px; color: #999; margin-top: 5px; }
 
-/* ⭐ 카드 분리 설정 */
 .breakdown-mini-column {
   display: flex;
   flex-direction: column;
@@ -315,16 +311,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-top: none;
 }
 .mini-sub-card span { font-size: 12px; color: #888; display: block; }
 .mini-sub-card strong { font-size: 20px; color: #333; }
 
-/* 그래프 */
 .chart-inner-bg {
   background: #ffffff; border: 1px solid #eef1f5; border-radius: 10px;
-  padding: 30px 10px 15px; margin-top: 15px;
-  
+  padding: 35px 10px 15px; margin-top: 15px;
 }
 .history-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .chart-labels {
@@ -333,11 +326,15 @@ onUnmounted(() => {
 }
 .chart-labels .today { color: #3498db; font-weight: bold; }
 
-/* 하단 상세 정보 */
+/* 강조 스타일 */
+.chart-text.high-risk {
+  fill: #e74c3c !important;
+  font-weight: 800;
+}
+
 .detail-analysis-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
 }
-.detail-card { border-top: none; }
 .detail-card h3 {
   font-size: 16px; margin-bottom: 15px; color: #334155;
   border-left: 4px solid #3498db; padding-left: 10px;
@@ -349,77 +346,31 @@ onUnmounted(() => {
 .metric-item span { font-size: 12px; color: #64748b; display: block; }
 .metric-item strong { font-size: 18px; color: #1e293b; margin-top: 5px; display: block; }
 
-.analysis-report-box { border-top: none; }
 .comment-content {
   display: flex; gap: 15px; align-items: center; background: #f0f7ff;
   padding: 15px; border-radius: 8px; font-size: 14px;
 }
 
-/* ⭐ 다크모드 강화 (그림자 추가 및 대비 최적화) */
+/* 다크모드 대응 */
 .dark-theme .analysis-view { background: #4f5052; }
-
 .dark-theme .v2x-card { 
-  background: #1e1e1e; 
-  color: #f1f5f9; 
-  border: 1px solid #2a2a2a;
-  /* 쉐도우 추가: 배경보다 약간 더 어두운 색상으로 입체감 부여 */
+  background: #1e1e1e; color: #f1f5f9; border: 1px solid #2a2a2a;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); 
 }
+.dark-theme .chart-inner-bg { background: #1e1e1e; border-color: #2a2a2a; }
+.dark-theme .metric-item { background: #333232; }
+.dark-theme .comment-content { background: #2a2a2a; color: #fff; }
 
-.dark-theme .chart-inner-bg { 
-  background: #1e1e1e; 
-  border-color: #2a2a2a; 
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); /* 안쪽 그림자로 깊이감 */
+.dark-theme .chart-text:not(.high-risk) {
+  fill: #ffffff !important;
 }
-
-.dark-theme .metric-item, 
-.dark-theme .icon { 
-  background: #333232; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
-}
-
-.dark-theme .comment-content {
-  background: #2a2a2a;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-/* 차트 데이터 라벨(숫자 0 부분) 및 축 텍스트 수정 */
-.dark-theme .chart-inner-bg text, 
-.dark-theme .chart-inner-bg .label,
-.dark-theme .v2x-card text {
-  fill: #ffffff !important;  /* SVG 차트인 경우 */
-  color: #ffffff !important; /* 일반 텍스트인 경우 */
-  font-weight: 500;
-}
-
-/* 하단 시간축(11:12, 11:22 등) 색상 강조 */
-.dark-theme .chart-text,
 .dark-theme .chart-labels span {
-  fill: #ffffff !important;  /* SVG 텍스트용 */
-  color: #ffffff !important; /* 일반 텍스트용 */
-}
-.dark-theme strong, 
-.dark-theme h2, 
-.dark-theme h3 { 
-  color: #fff !important; 
-}
-.dark-theme .history-svg text {
-  fill: #ffffff !important; /* 인라인으로 박힌 :fill을 무시함 */
-}
-.dark-theme .metric-item span { 
-  color: #ffffff; /* 다크모드 폰트 컬러 조정 */
-}
-
-.dark-theme .metric-item strong { 
-  color: #fff; 
-}
-
-.dark-theme .selector-group label {
   color: #ffffff;
 }
-
+.dark-theme strong, .dark-theme h2, .dark-theme h3, .dark-theme label { 
+  color: #fff !important; 
+}
 .dark-theme .intersection-select {
-  background: #2a2a2a;
-  color: white;
-  border-color: #444;
+  background: #2a2a2a; color: white; border-color: #444;
 }
 </style>
