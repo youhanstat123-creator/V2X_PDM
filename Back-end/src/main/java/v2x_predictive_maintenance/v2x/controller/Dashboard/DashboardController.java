@@ -35,8 +35,9 @@ public class DashboardController {
     }
 
     @GetMapping("/spat-latency")
-    public SpatLatencyDTO getSpatLatency() {
-        return dashboardService.getSpatLatencyData();
+    public SpatLatencyDTO getSpatLatency(
+            @RequestParam(value = "intersectionId", required = false) String intersectionId) {
+        return dashboardService.getSpatLatencyData(intersectionId);
     }
 
 }

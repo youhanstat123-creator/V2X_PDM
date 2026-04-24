@@ -52,7 +52,17 @@
       </div>
 
       <div class="chart-container">
-        <h3>📊 실시간 데이터 분석 (SPAT/Latency)</h3>
+        <div class="analysis-header">
+          <h3>📊 실시간 데이터 분석 (SPAT/Latency)</h3>
+          <label class="device-select-wrap">
+            <span>기기 선택</span>
+            <select v-model="selectedIntersectionId" @change="loadSpatLatency">
+              <option v-for="opt in analysisDeviceOptions" :key="opt.id" :value="opt.id">
+                {{ opt.label }}
+              </option>
+            </select>
+          </label>
+        </div>
         <div class="analysis-grid">
           <div class="analysis-section">
             <span class="sub-title">SPAT 신호 송수신 현황</span>
@@ -193,7 +203,7 @@
 
 <script setup>
 import { GoogleMap, Marker } from 'vue3-google-map'
-import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
+import { ref, inject, computed, onMounted, onUnmounted, watch } from 'vue'
 import * as dashApi from '@/api/dashboard'
 
 const isDarkMode = inject('isDarkMode', ref(false))
@@ -217,6 +227,7 @@ const spat = ref({
   currentLatency: 0,
   latencyTrend: [],
 })
+const selectedIntersectionId = ref('')
 
 const defaultCenter = { lat: 37.4493, lng: 126.7012 }
 
@@ -236,6 +247,24 @@ const mapCenter = computed(() => {
   }
   return defaultCenter
 })
+
+const analysisDeviceOptions = computed(() =>
+  intersectionDevices.value.slice(0, 3).map((device) => ({
+    id: device.id,
+    label: `${device.id} (${device.name})`,
+  })),
+)
+
+function ensureSelectedIntersection() {
+  const options = analysisDeviceOptions.value
+  if (!options.length) {
+    selectedIntersectionId.value = ''
+    return
+  }
+  if (!options.some((opt) => opt.id === selectedIntersectionId.value)) {
+    selectedIntersectionId.value = options[0].id
+  }
+}
 
 const LAT_PLOT_TOP = 30
 const LAT_PLOT_BOT = 78
@@ -396,16 +425,16 @@ function mapMapMarkers(rows) {
 async function loadDashboard() {
   loadError.value = ''
   try {
-    const [s, a, m, sp] = await Promise.all([
+    const [s, a, m] = await Promise.all([
       dashApi.getDashboardSummary(),
       dashApi.getAbnormalList(),
       dashApi.getMapMarkers(),
-      dashApi.getSpatLatency(),
     ])
     summary.value = mapDashboardSummary(s)
     abnormalList.value = mapAbnormalRows(a)
     mapMarkers.value = mapMapMarkers(m)
-    spat.value = sp && typeof sp === 'object' ? { ...spat.value, ...sp } : spat.value
+    ensureSelectedIntersection()
+    await loadSpatLatency()
   } catch (e) {
     loadError.value = e instanceof Error ? e.message : '대시보드 데이터를 불러오지 못했습니다.'
   }
@@ -422,8 +451,18 @@ async function loadSummaryAndAbnormal() {
     summary.value = mapDashboardSummary(s)
     abnormalList.value = mapAbnormalRows(a)
     mapMarkers.value = mapMapMarkers(m)
+    ensureSelectedIntersection()
   } catch {
     /* 무시 — 초기 loadDashboard 오류만 표시 */
+  }
+}
+
+async function loadSpatLatency() {
+  try {
+    const sp = await dashApi.getSpatLatency(selectedIntersectionId.value)
+    spat.value = sp && typeof sp === 'object' ? { ...spat.value, ...sp } : spat.value
+  } catch {
+    /* 무시 */
   }
 }
 
@@ -433,14 +472,13 @@ let summaryPoll = null
 onMounted(() => {
   loadDashboard()
   spatPoll = setInterval(async () => {
-    try {
-      const sp = await dashApi.getSpatLatency()
-      spat.value = sp
-    } catch {
-      /* 무시 */
-    }
+    loadSpatLatency()
   }, 2000)
   summaryPoll = setInterval(loadSummaryAndAbnormal, 4000)
+})
+
+watch(analysisDeviceOptions, () => {
+  ensureSelectedIntersection()
 })
 
 onUnmounted(() => {
@@ -530,6 +568,31 @@ const mapDarkStyle = [
 .chart-container > h3 {
   margin: 0 0 4px;
   font-size: 1rem;
+}
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.analysis-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.device-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #666;
+}
+.device-select-wrap select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: #fff;
+  color: #222;
 }
 .bottom-row {
   background: white;
@@ -746,6 +809,14 @@ const mapDarkStyle = [
 .dark-theme .kpi-card span,
 .dark-theme .sub-title {
   color: #e4dbdb !important;
+}
+.dark-theme .device-select-wrap {
+  color: #d4d4d8 !important;
+}
+.dark-theme .device-select-wrap select {
+  background: #111827;
+  border-color: #374151;
+  color: #f3f4f6;
 }
 .dark-theme .list-table th {
   border-bottom: 2px solid #444 !important;

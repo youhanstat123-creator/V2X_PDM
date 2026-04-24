@@ -1,1 +1,0 @@
-async function s(r){const t=await r.text();if(!t)return{};try{return JSON.parse(t)}catch{return{}}}async function n(r){const t=await fetch(r),a=await s(t);if(!t.ok){const e=a.message||a.error||t.statusText;throw new Error(typeof e=="string"?e:"요청에 실패했습니다.")}return a}export{n as a,s as p};

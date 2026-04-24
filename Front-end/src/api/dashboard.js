@@ -12,6 +12,7 @@ export function getMapMarkers() {
   return apiGet('/api/dashboard/map')
 }
 
-export function getSpatLatency() {
-  return apiGet('/api/dashboard/spat-latency')
+export function getSpatLatency(intersectionId) {
+  const query = intersectionId ? `?intersectionId=${encodeURIComponent(intersectionId)}` : ''
+  return apiGet(`/api/dashboard/spat-latency${query}`)
 }

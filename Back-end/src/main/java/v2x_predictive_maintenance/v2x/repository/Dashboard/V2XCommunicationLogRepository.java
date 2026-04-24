@@ -18,6 +18,10 @@ public interface V2XCommunicationLogRepository extends JpaRepository<V2XCommunic
     Optional<V2XCommunicationLog>
     findTopByIntersectionIdOrderByV2xLogTimeDesc(String intersectionId);
 
+    // 특정 교차로 그래프용 최신 10개
+    List<V2XCommunicationLog>
+    findTop10ByIntersectionIdOrderByV2xLogTimeDesc(String intersectionId);
+
     // 최근 1시간 지연 그래프용 최신 6개
     List<V2XCommunicationLog>
     findTop6ByIntersectionIdOrderByV2xLogTimeDesc(String intersectionId);
