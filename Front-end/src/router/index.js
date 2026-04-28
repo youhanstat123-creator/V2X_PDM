@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
-import MainLayout from '../layouts/MainLayout.vue' // 레이아웃 파일
+import MainLayout from '../layouts/MainLayout.vue'
 import { isAuthenticated } from '@/auth/session'
 
 const router = createRouter({
@@ -18,52 +18,70 @@ const router = createRouter({
       component: SignupView,
     },
 
+    // 🔥 옛날 경로 강제 리다이렉트 (핵심)
+    {
+      path: '/dashboard',
+      redirect: '/main/dashboard',
+    },
+    {
+      path: '/analysis',
+      redirect: '/main/analysis',
+    },
+    {
+      path: '/V2X',
+      redirect: '/main/V2X',
+    },
+    {
+      path: '/Recommend',
+      redirect: '/main/Recommend',
+    },
+
     {
       path: '/main',
       component: MainLayout,
       children: [
         {
-          path: '/dashboard',
+          path: 'dashboard',
           name: 'dashboard',
           component: () => import('../views/Dashboard.vue'),
         },
         {
-          path: '/analysis', // 💡 추가된 경로
+          path: 'analysis',
           name: 'analysis',
-          component: () => import('../views/Analysis.vue'), // 이 파일을 만들어야 함
+          component: () => import('../views/Analysis.vue'),
         },
         {
-          path: '/V2X',
+          path: 'V2X',
           name: 'V2X',
-          component: () => import('../views/V2X.vue'), // views/V2X.vue 파일을 불러옴
+          component: () => import('../views/V2X.vue'),
         },
         {
-          path: '/v2x',
-          redirect: '/V2X',
+          path: 'v2x',
+          redirect: '/main/V2X',
         },
         {
-          path: '/Recommend', // 추가된 경로
+          path: 'Recommend',
           name: 'Recommend',
           component: () => import('../views/RecommendView.vue'),
         },
         {
-          path: '/recommend',
-          redirect: '/Recommend',
+          path: 'recommend',
+          redirect: '/main/Recommend',
         },
       ],
     },
   ],
 })
 
-const protectedPaths = ['/dashboard', '/analysis', '/V2X', '/v2x', '/Recommend', '/recommend']
-
 router.beforeEach((to) => {
-  if (protectedPaths.includes(to.path) && !isAuthenticated()) {
+  // 🔒 로그인 안 했으면 main 접근 차단
+  if (to.path.startsWith('/main') && !isAuthenticated()) {
     return '/'
   }
 
+  // 🔁 로그인 되어있으면 로그인 페이지 못 가게
   if ((to.path === '/' || to.path === '/signup') && isAuthenticated()) {
-    return '/dashboard'
+    return '/main/dashboard'
   }
 
   return true

@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-content">
-    <p v-if="loadError" class="load-error">{{ loadError }}</p>
+    
 
     <div class="kpi-row">
       <div class="kpi-card">
