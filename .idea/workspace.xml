@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f13ab6f5-7629-463b-a50f-99fd9286b0f5" name="변경" comment="프론트엔드 백엔드 재통합 (한미애)" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/Back-end">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;hanmiae&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hanmiae/V2X_PDM.git&quot;,
+    &quot;accountId&quot;: &quot;189d9462-4bcf-448b-a44f-46267d4bce37&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="3CN5mGMZoKYvMbpYtxemdYZDTxc" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.v2x_realtime_server.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/2.sundo/8. 프로젝트/2way/제 2 프로젝트/v2x/v2x"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\sundo\프로젝트\2way\제 2 프로젝트\v2x\v2x\Back-end\src\main\resources\static" />
+      <recent name="C:\sundo\프로젝트\2way\제 2 프로젝트\v2x\v2x" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="v2x_realtime_server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="v2x" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/py" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/py/v2x_realtime_server.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.v2x_realtime_server" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="f13ab6f5-7629-463b-a50f-99fd9286b0f5" name="변경" comment="" />
+      <created>1776213345504</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1776213345504</updated>
+    </task>
+    <task id="LOCAL-00001" summary="백엔드 그래프 24시간 -&gt; 1시간 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776217850194</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1776217850194</updated>
+    </task>
+    <task id="LOCAL-00002" summary="백엔드 그래프 24시간 -&gt; 1시간 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776217882529</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1776217882529</updated>
+    </task>
+    <task id="LOCAL-00003" summary="전화번호는 필수입니다. (한미애)">
+      <option name="closed" value="true" />
+      <created>1776226342873</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1776226342873</updated>
+    </task>
+    <task id="LOCAL-00004" summary="프론트엔드 빌드 &amp; 백엔드 적용 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776238469941</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1776238469941</updated>
+    </task>
+    <task id="LOCAL-00005" summary="프론트엔드 빌드 &amp; 백엔드 적용 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776238482765</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776238482765</updated>
+    </task>
+    <task id="LOCAL-00006" summary="사원번호 유효성 검사 추가 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776387466313</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1776387466313</updated>
+    </task>
+    <task id="LOCAL-00007" summary="사원번호 유효성 검사 수정 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776395248089</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1776395248089</updated>
+    </task>
+    <task id="LOCAL-00008" summary="사원번호 유효성 검사 수정 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776395253645</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1776395253645</updated>
+    </task>
+    <task id="LOCAL-00009" summary="프론트엔드 백엔드 통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776397803223</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1776397803223</updated>
+    </task>
+    <task id="LOCAL-00010" summary="프론트엔드 백엔드 통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776731915665</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1776731915665</updated>
+    </task>
+    <task id="LOCAL-00011" summary="프론트엔드 백엔드 재통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776732590121</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1776732590121</updated>
+    </task>
+    <task id="LOCAL-00012" summary="프론트엔드 백엔드 재통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776736149970</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1776736149970</updated>
+    </task>
+    <task id="LOCAL-00013" summary="프론트엔드 백엔드 재통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776913260474</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1776913260474</updated>
+    </task>
+    <task id="LOCAL-00014" summary="프론트엔드 백엔드 재통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1776916053265</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1776916053265</updated>
+    </task>
+    <task id="LOCAL-00015" summary="프론트엔드 백엔드 재통합 (한미애)">
+      <option name="closed" value="true" />
+      <created>1777349767923</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1777349767923</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="백엔드 그래프 24시간 -&gt; 1시간 (한미애)" />
+    <MESSAGE value="전화번호는 필수입니다. (한미애)" />
+    <MESSAGE value="프론트엔드 빌드 &amp; 백엔드 적용 (한미애)" />
+    <MESSAGE value="사원번호 유효성 검사 추가 (한미애)" />
+    <MESSAGE value="사원번호 유효성 검사 수정 (한미애)" />
+    <MESSAGE value="프론트엔드 백엔드 통합 (한미애)" />
+    <MESSAGE value="프론트엔드 백엔드 재통합 (한미애)" />
+    <option name="LAST_COMMIT_MESSAGE" value="프론트엔드 백엔드 재통합 (한미애)" />
+  </component>
+</project>
